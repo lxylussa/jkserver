@@ -391,6 +391,7 @@
          * rateFlash
          * pathLength
          */
+         console.log('helloworld');
     	this.id = options.id || '#chart';
     	this.target = $(this.id);
     	this.width = options.width || this.target.width();

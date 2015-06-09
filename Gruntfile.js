@@ -2,50 +2,50 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     concat: {
-        js: {
-        options:{
-          process: function(src, filepath){
-            if (filepath != 'src/head.js' && filepath != 'src/tail.js'){
-              var lines = [];
-              src.split('\n').forEach(function(line){
-                var sp = '';
-                if (line.length > 0){
-                  sp = '    ';
-                }
-                lines.push(sp+line);
-              });
-              src = lines.join('\n');
-            }
-            return src;
-          }
-        },
-        src: [
-          'resource/d3.min.js',
-          'resource/c3.min.js',
-          'src/head.js',
-          'src/core.js',
-          'src/config.js',
-          'src/util.js',
-          'src/animate.js',
-          'src/easing.js',
-          'src/circle-canvas.js',
-          'src/tail.js'
-        ],
-        dest: 'chartbone2/public/resource/jk.js'
-      },
-        template: {
-        src: [
-          'chartbone/template/head.html',
-          'chartbone/template/body.html',
-          'chartbone/template/bar.html',
-          'chartbone/template/line.html',
-          'chartbone/template/pie.html',
-          'chartbone/template/tool.html',
-          'chartbone/template/cloud.html',
-          'chartbone/template/footer.html'
-        ],
-        dest: 'chartbone/index.html'
-      },
+      //   js: {
+      //   options:{
+      //     process: function(src, filepath){
+      //       if (filepath != 'src/head.js' && filepath != 'src/tail.js'){
+      //         var lines = [];
+      //         src.split('\n').forEach(function(line){
+      //           var sp = '';
+      //           if (line.length > 0){
+      //             sp = '    ';
+      //           }
+      //           lines.push(sp+line);
+      //         });
+      //         src = lines.join('\n');
+      //       }
+      //       return src;
+      //     }
+      //   },
+      //   src: [
+      //     'resource/d3.min.js',
+      //     'resource/c3.min.js',
+      //     'src/head.js',
+      //     'src/core.js',
+      //     'src/config.js',
+      //     'src/util.js',
+      //     'src/animate.js',
+      //     'src/easing.js',
+      //     'src/circle-canvas.js',
+      //     'src/tail.js'
+      //   ],
+      //   dest: 'chartbone2/public/resource/jk.js'
+      // },
+      //   template: {
+      //   src: [
+      //     'chartbone/template/head.html',
+      //     'chartbone/template/body.html',
+      //     'chartbone/template/bar.html',
+      //     'chartbone/template/line.html',
+      //     'chartbone/template/pie.html',
+      //     'chartbone/template/tool.html',
+      //     'chartbone/template/cloud.html',
+      //     'chartbone/template/footer.html'
+      //   ],
+      //   dest: 'chartbone/index.html'
+      // },
         js2: {
             options:{
                 process: function(src, filepath){

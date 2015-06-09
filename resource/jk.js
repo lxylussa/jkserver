@@ -64,9 +64,7 @@
             spline: {},
             bar: {},
             pie: {},
-            donut: {},
-            x: null,
-            y: null
+            donut: {}
             //默认配置
         };
 
@@ -190,7 +188,7 @@
       return dst;
     },
 
-    filter = chart_fn.filter = function(arr, key, value, callback, othercallback){
+    filter = chart_fn.extend = function(arr, key, value, callback, othercallback){
         if (!isArrayLike(arr)) return;
         var res = [];
         for (var i = 0; i < arr.length; i++) {
@@ -403,12 +401,6 @@
     	this.nodeLife = options.nodeLife || 10;
     	this.rateFlash = options.rateFlash || 2.5;
         this.pathLength = options.pathLength || 0;
-        this.friction = options.friction || .75;
-        this.gravity = options.gravity || 0.025;
-        this.charge = options.charge || function(d) {
-            return - ( 25 + d.radius ) * 8;
-        };
-        this.category = options.category || false;
 
         this.onclick = options.onclick || function(){};
         this.onmouseover = options.onmouseover || function(){};
@@ -419,7 +411,7 @@
     	var _force = this.force = d3.layout.force()
     	    .stop()
             .size([this.width, this.height])
-            .friction(this.friction)
+            .friction(.75)
             .gravity(0)
             .charge(function(d) {return - d.radius; })
             .nodes([]);
@@ -427,8 +419,10 @@
     	var _forceAuthor = d3.layout.force()
     		.stop()
     		.size([this.width, this.height])
-    		.gravity(this.gravity)
-    		.charge(this.charge)
+    		.gravity(.025)
+    		.charge(function(d) {
+    			return - ( 25 + d.radius ) * 8;
+    		})
     		.nodes([]);
 
     	var zoomScale = d3.scale.linear()
@@ -512,16 +506,6 @@
                             return d.visible;
                         })
                 );
-
-                if (that.category){
-                    _forceAuthor.nodes().forEach(function(d){
-                        if (d.node.category <= 4){
-                            var k = 6 * e.alpha;
-                            d.y += d.node.category & 1 ? k : -k;
-                            d.x += d.node.category & 2 ? k : -k;
-                        }
-                    });
-                }
             }
             _forceAuthor.resume();
             _force.resume();
@@ -652,11 +636,9 @@
                                 return true;
                             }
                         })[0];
-                        bufCtx.globalAlpha = 1;
-                        bufCtx.strokeStyle= d.pathcolor;
-                        bufCtx.lineWidth = d.pathweight;
-                        bufCtx.shadowBlur= 40;
-                        bufCtx.shadowColor= d.pathcolor;
+                        bufCtx.globalAlpha = 0.5;
+                        bufCtx.strokeStyle="#fff";
+                        bufCtx.lineWidth = 4;
                         bufCtx.beginPath();
                         bufCtx.moveTo(c.x, c.y);
                         var cx = 0, cy = 0, ll = Math.sqrt((c.y - cp.y) * (c.y - cp.y) + (c.x - cp.x) * (c.x - cp.x));
@@ -665,28 +647,6 @@
                         
                         bufCtx.lineTo(cx, cy);
                         bufCtx.stroke();
-
-                        //draw line text
-                        if (d.pathtext){
-                            var tx = (cx - c.x) / 2 + c.x;
-                            var ty = (cy - c.y) / 2 + c.y - 5;
-                            bufCtx.save();
-                            bufCtx.translate(tx,ty);
-                            bufCtx.rotate(Math.atan((cp.y- c.y)/(cp.x- c.x)));
-                            bufCtx.textAlign = 'center';
-                            bufCtx.globalAlpha = 1;
-
-                            var toptext = d.pathtext;
-                            if (d.pathtext.length > 10){
-                                toptext = d.pathtext.substring(0, 10);
-                                var bottomtext = d.pathtext.substring(10);
-                            }
-
-                            bufCtx.fillText(toptext, 0, 0);
-                            if (bottomtext) bufCtx.fillText(bottomtext, 0, 20);
-
-                            bufCtx.restore();
-                        }
                     }
     				bufCtx.globalAlpha = c.opacity * .01;
 
@@ -704,7 +664,7 @@
                     if (c.title && c.opacity > 0 && c.showtitle){
                         bufCtx.globalAlpha = c.opacity * .01;
                         bufCtx.textAlign='center';
-                        bufCtx.fillStyle = that.style.textcolor || "white";
+                        bufCtx.fillStyle = "white";
                         bufCtx.fillText(c.title, c.x, c.y + c.radius + 15);
                     }
 
@@ -737,16 +697,16 @@
                     if (d.title && d.opacity > 0){
                         bufCtx.globalAlpha = d.opacity * .01;
                     	bufCtx.textAlign='center';
-                    	var c = that.style.textcolor || "white";
+                    	var c = "white";
                 
                     	bufCtx.fillStyle = c;
                     	bufCtx.fillText(d.title, d.x, d.y + d.radius + 15);
                     }
                     //当发生hover
-                    if (d.onhover && d.content){
+                    if (d.onhover){
                     	bufCtx.textAlign='left';
                     	bufCtx.globalAlpha = 1;
-                    	bufCtx.fillStyle = that.style.textcolor || "white";
+                    	bufCtx.fillStyle = 'white';
                     	bufCtx.fillText(d.content, d.x + d.radius, d.y + d.radius);
                     }
                 }
@@ -830,7 +790,7 @@
                 //半径
                 if (d._toradius_begin){
                     var currenttime = new Date().getTime() - d._toradius_begin_time;
-                    d.radius = jk.chart.fn.easing[d._toradius_type](null, currenttime, d._toradius_start_value, d._toradius_end_value, d._toradius_total_time);
+                    d.radius = jk.easing[d._toradius_type](null, currenttime, d._toradius_start_value, d._toradius_end_value, d._toradius_total_time);
                     if (currenttime >= d._toradius_total_time){
                         d._toradius_begin = false;
                     }
@@ -895,10 +855,8 @@
     		d.flash = 100; 
     		d.visible = true;
             d.imagefile = new Image();
-            d.imagefile.src = d.image || "../../resource/particle.png";
+            d.imagefile.src = d.image || "../../resource/particle.png";        
             d.opacitySpeed = 0.5;
-            d.pathcolor = d.pathcolor || '#fff';
-            d.pathweight = d.pathweight || 4;
 
             if (d.pid && d.type == 'small'){
     			nodes.filter(function(t){
@@ -989,8 +947,8 @@
 
     	canvas.addEventListener('mousemove', function(e) {
             var offset = $(context.canvas).offset(); 
-      		var mx = e.pageX - offset.left;
-      		var my = e.pageY - offset.top;
+      		var mx = e.clientX - offset.left;
+      		var my = e.clientY - offset.top;
       		var hasonehover = false;
             var hasonedrag = false;
       		nodes.forEach(function(d){
@@ -1028,8 +986,8 @@
         
         var clicktmp = function(e){
             var offset = $(context.canvas).offset(); 
-            var mx = e.pageX - offset.left;
-            var my = e.pageY - offset.top;
+            var mx = e.clientX - offset.left;
+            var my = e.clientY - offset.top;
 
             var hasonetrigger = false;
                 
@@ -1055,8 +1013,8 @@
 
         canvas.addEventListener('mousedown', function(e){
             var offset = $(context.canvas).offset(); 
-            var mx = e.pageX - offset.left;
-            var my = e.pageY - offset.top;
+            var mx = e.clientX - offset.left;
+            var my = e.clientY - offset.top;
             nodes.forEach(function(d){
                 var cx = d.x * lastEvent.scale + lastEvent.translate[0], 
                     cy = d.y * lastEvent.scale + lastEvent.translate[1],
@@ -1125,10 +1083,6 @@
          */
         getNodes: function(){
             return this.nodes;
-        },
-        empty: function(){
-            this.nodes = [];
-            return true;
         }
     }
     if (typeof define === 'function' && define.amd) {
