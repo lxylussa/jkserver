@@ -1,0 +1,145 @@
+var global_config = config.global_config;
+var charts_config = config.charts_config;
+var grid_list = config.grid_list;
+
+function grid_init() {
+    var boneid = '#' + chartbone.id;
+    $(boneid).addClass('gridster ready').css({
+        width: global_config.canvas.width
+    }).append('<ul />');
+
+    var gridster = $(boneid + ' ul').gridster({
+        widget_base_dimensions: global_config.grid.widget_base_dimensions,
+        widget_margins: [5, 5]
+    }).data('gridster');
+
+    gridster.disable();
+
+    for (var i = 0, l = grid_list.length; i < l; i++){
+        for (var j = i+1; j < l; j++){
+            if (grid_list[i].row > grid_list[j].row){
+                var tmp = grid_list[i];
+                grid_list[i] = grid_list[j];
+                grid_list[j] = tmp;
+            }
+        }
+    }
+
+    $.each(grid_list, function () {
+        gridster.add_widget('<li><div class="panel-div" id="' + this.id + '"></div></li>', this.size_x, this.size_y, this.col, this.row);
+    });
+}
+
+function chart_init() {
+    $.each(charts_config, function () {
+        switch (this.type) {
+            case 'line':
+                ;
+            case 'pie':
+                ;
+            case 'donut':
+                ;
+            case 'bar':
+                _drawCharts(this);
+                break;
+            case 'text':
+                _drawTexts(this);
+                break;
+            case 'pic':
+                _drawPic(this);
+                break;
+            case 'cloud':
+                _drawCloud(this);
+                break;
+            case 'force':
+                _drawForce(this);
+                break;
+        }
+    });
+}
+
+
+function _drawCharts(c) {
+    if (c.type == 'bar' || c.type == 'line' || c.type == 'pie' || c.type == 'donut') {
+        c.chart_config.legend.item = {
+            onclick: legendclick,
+            onmouseover: legendonmouseover,
+            onmouseout: legendonmouseout
+        };
+        c.chart_config.zoom.onzoomend = function (domain) {
+            reclacdomain(domain, this);
+        };
+        var chart = jk.drawChart(c.chart_config);
+        appcharts.push(chart);
+    }
+}
+
+function _drawTexts(c) {
+    $('#' + c.id).addClass('markdown').html(c.chart_config.html).parent().addClass('nobgcolor');
+}
+
+function _drawPic(c) {
+    if (c.chart_config.imgurl) {
+        $('#' + c.id).html('<img style="width:100%" src="' + c.chart_config.imgurl + '" />');
+    }
+}
+
+function _drawCloud(c) {
+    var parent = $('#' + c.id).parent();
+    $('#' + c.id).css({
+        width: parent.width(),
+        height: parent.height()
+    });
+    var data = c.chart_config.data_config.json;
+    for (var i in data) {
+        $('#' + c.id).append('<span data-weight=' + data[i] + '>' + i + '</span>');
+    }
+    $('#' + c.id).awesomeCloud(c.chart_config.setting);
+}
+
+function _drawForce(c){
+    var config = c.chart_config;
+    var parent = $(config.bindto).parent();
+    var cc =  $(config.bindto).css({
+        width: parent.width(),
+        height: parent.height(),
+        padding: 5
+    });
+    cc.crcanvas = jk.drawChart({
+        type: 'CrCanvas',
+        option: {
+            id: config.bindto
+        }
+    });
+    cc.crcanvas.init();
+    cc.crcanvas.empty();
+    $.each(config.data_config.json, function(){
+        var that = this;
+        cc.crcanvas.addNode({
+            type: 'big',
+            id: that.id,
+            immortal: true
+        });
+        $.each(this.children, function(){
+            var cldthat = this;
+            cc.crcanvas.addNode({
+                type: 'small',
+                id: cldthat.id,
+                pid: that.id,
+                radius: 10,
+                immortal: true
+            });
+        });
+    });
+}
+
+Chartbone.prototype = {
+    init: function (options) {
+        this.id = options.id;
+        grid_init();
+        chart_init();
+    }
+}
+window.chartbone = new Chartbone();
+})
+(window);

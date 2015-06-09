@@ -1,0 +1,69 @@
+var appcharts = [];
+
+//鼠标点击legend
+function legendclick(id) {
+    for (var i = 0; i < appcharts.length; i++) {
+        appcharts[i].toggle(id);
+    }
+}
+
+//鼠标hover
+function legendonmouseover(id) {
+    for (var i = 0; i < appcharts.length; i++) {
+        appcharts[i].focus(id);
+    }
+}
+
+//鼠标mouseout
+function legendonmouseout() {
+    for (var i = 0; i < appcharts.length; i++) {
+        appcharts[i].focus();
+    }
+}
+
+//zoom响应
+function reclacdomain(d, e) {
+    var start = Math.ceil(d[0]);
+    var end = Math.floor(d[1]);
+    for (var i = 0; i < appcharts.length; i++) {
+//只更改其他图表
+        if (e.element.id != appcharts[i].element.id) {
+            if (_canZoom(appcharts[i])) {
+                appcharts[i].zoom(d);
+            } else {
+//计算根据domain重新计算后的值
+                var resdata = _calcNewDataByDomain(e.data(), start, end);
+                appcharts[i].load({
+                    columns: resdata
+                });
+            }
+        }
+    }
+}
+
+//哪些图表可以进行自动的zoom
+function _canZoom(chart) {
+    var canZoomType = ['line', 'bar'];
+    for (var i = 0; i < canZoomType.length; i++) {
+        if (chart.type == canZoomType[i]) return true;
+    }
+    return false;
+}
+
+//按照图表根据domain计算区域
+function _calcNewDataByDomain(data, start, end) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+        var id = data[i].id;
+        var values = data[i].values;
+        var v_start = 0, v_end = values.length - 1;
+        while (values[v_start].x < start) v_start++;
+        while (values[v_end].x > end) v_end--;
+        var tmp = [id];
+        for (var j = v_start; j <= v_end; j++) {
+            tmp.push(values[j].value);
+        }
+        res.push(tmp);
+    }
+    return res;
+}

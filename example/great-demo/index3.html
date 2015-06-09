@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jk animate example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="../../resource/jquery.min.js"></script>
+    
+    <script src="../../jk.js"></script>
+
+
+    <link rel="stylesheet" href="../../resource/jk.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body{
+            background: #2B353E;
+            margin: 0;
+            padding: 10px;
+        }
+        #chart {
+            position: relative;
+
+            height: 600px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.9), 0px 1px 1px 0px rgba(255, 255, 255, 0.13);
+            background-color: #10171D;
+        }
+    </style>
+</head>
+<body>
+<div id="chart"></div>
+
+
+<script>
+    var drawPic = jk.drawChart({
+        'type': 'CrCanvas',
+        'option': {
+            id: "#chart",
+            // friction: 0.6,
+            // category: true,
+            // charge: function(d) {
+            //     return - ( 25 + d.radius ) * 5;
+            // },
+            // onclick: function(n){
+            // },
+            // onmouseover: function(d){
+            // },
+            // onmouseout: function(d){
+            // }
+        }
+    });
+    drawPic.init();
+    var nodes = drawPic.getNodes();
+
+    drawPic.addNode({
+        node: {},
+        id: 1,
+        radius: 20,
+        type: 'big',
+        content: 'h1',
+        title: 'h1',
+        immortal: true,
+    });
+
+    drawPic.addNode({
+        node: {},
+        id: 2,
+        radius: 30,
+        type: 'big',
+        content: 'h1',
+        title: 'h1',
+        immortal: true,
+    });
+
+    drawPic.addNode({
+        node: {},
+        id: 3,
+        radius: 30,
+        type: 'big',
+        content: 'h1',
+        title: 'h1',
+        immortal: true,
+    });
+
+    var max = 50;
+    for(var i = 0; i< max; i++){
+        // setTimeout(function () {
+            
+            drawPic.addNode({
+                id: 10 + i,
+                pid: 1 + Math.floor(Math.random() * 3),
+                type: 'small',
+                drawtail: true,
+                immortal: true
+            });            
+
+        // }, 100 * i);
+
+    }
+
+    setTimeout(function () {
+        jk.chart.fn.filter(nodes, 'id', 10, function(node){
+            node.pid = 1;
+        });
+
+        jk.chart.fn.filter(nodes, 'id', 1, function(node){
+            node.bigger(10);
+        });
+
+        jk.chart.fn.filter(nodes, 'id', 2, function(node){
+            node.hide(1000);
+        });
+    }, 2000);
+
+    console.log(nodes);
+
+
+</script>
+</body>
+</html>

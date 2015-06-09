@@ -1,0 +1,26 @@
+<script type="text/tpl" id="gaugechart_config">
+	<p>
+	    <div class="config-i">
+			<button class="btn btn-xs btn-primary" ng-click="importData()">检视数据</button>
+		</div>
+		<div class="config-i">
+			<p>颜色：</p>
+			<hr>
+			<div>
+				<p ng-repeat="(k,v) in chart.chart_config.data.colors">
+					{{k}} <span ng-color-pick color="chart.chart_config.data.colors[k]" class="color-box" style="background-color: {{v}}"></span>
+				</p>
+			</div>
+		</div>
+	</p>
+</script>
+<script type="text/tpl" id="textchart_config">
+	<p>
+		<button ng-text-config-modal config="chart.chart_config" class="editbtn btn btn-primary btn-xs" type="button" data-toggle="modal" data-target="#textConfigModal">编辑文本区域</button>
+	</p>
+</script>
+<script type="text/tpl" id="picchart_config">
+	<p>
+		<button ng-pic-config-modal config="chart.chart_config" class="editbtn btn btn-primary btn-xs" type="button" data-toggle="modal" data-target="#picConfigModal">点击绑定图片地址</button>
+	</p>
+</script>

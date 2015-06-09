@@ -1,0 +1,186 @@
+<body>
+
+<div class="container" ng-controller="IndexCtrl">
+	<div class="row main">
+		<!-- 左边栏控制区域 -->
+		<div class="left">
+			<h2>ChartBone</h2>
+			<!-- 数据控制区 -->
+			<div class="data-panel panel">
+				<button style="width:100%" type="button" class="btn btn-xs btn-primary" ng-click="importData()">导入数据</button>
+			</div>
+			<!-- 添加gridster.js控制区 -->
+			<div ng-hide="gridster" class="gridster-panel panel">
+				<p>
+					画布宽度：<input ng-model='config.canvas.width' class="cs_panel form-control input-sm" type="text" /> px
+				</p>
+				<p>
+					栅栏宽度：<input ng-model='config.grid.widget_base_dimensions[0]' class="cs_panel form-control input-sm" type="text" /> px
+				</p>
+				<p>
+					栅栏高度：<input ng-model='config.grid.widget_base_dimensions[1]' class="cs_panel form-control input-sm" type="text" /> px
+				</p>
+				<p>
+					栅栏间隙宽度：<input ng-model='config.grid.widget_margins[0]' class="cs_panel form-control input-sm" type="text" /> px
+				</p>
+				<p>
+					栅栏间隙高度：<input ng-model='config.grid.widget_margins[1]' class="cs_panel form-control input-sm" type="text" /> px
+				</p>
+				<button class="btn btn-xs btn-primary" type="button" ng-click="createCanvas();">生成画布</button>
+			</div>
+			<div ng-show="panels.length" class="color-panel panel">
+				<h5>配色方案调整</h5>
+				<div ng-click="changeColorPattern(i);" ng-repeat="i in color">
+					<span class="color-box" ng-if="$index < 5" ng-style="{backgroundColor: j}" ng-repeat="j in i"></span>
+				</div>
+			</div>
+			<!-- 添加图表控制区 -->
+			<div ng-show="panels.length" class="controller-panel panel">
+				<h5>添加图表实例</h5>
+			    <button type="button" class="btn btn-xs btn-default" ng-click="addChart('bar')">添加条形图</button>
+			    <button type="button" class="btn btn-xs btn-default" ng-click="addChart('line')">添加折线图</button>
+			  	<button type="button" class="btn btn-xs btn-default" ng-click="addChart('pie')">添加圆饼图</button>
+			  	<button type="button" class="btn btn-xs btn-default" ng-click="addChart('pic')">添加图片</button>
+			  	<button type="button" class="btn btn-xs btn-default" ng-click="addChart('text')">添加文本块</button>
+			</div>
+			<!-- 按钮配置区 -->
+			<div ng-show="panels.length" class="config-panel panel">
+				<h5>图表实例配置</h5>
+		  		<div ng-repeat="i in panels" class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					<div class="panel panel-default">
+						<div class="panel-heading" role="tab" id="{{'heading'+i.id}}">
+				      		<h6 class="panel-title">
+				        		<a data-toggle="collapse" data-parent="#accordion" href="#{{'collapse'+i.id}}" aria-expanded="false" aria-controls="{{'collapse'+i.id}}">
+				          			{{i.chart_config.name}}
+				        		</a>
+				        		<button ng-click="deleteChart(i);" type="button" class="btn btn-danger btn-xs pull-right">X</button>
+				      		</h6>
+				    	</div>
+					</div>
+					<div id="{{'collapse'+i.id}}" class="chart-config panel-collapse collapse" role="tabpanel" aria-labelledby="{{'heading'+i.id}}">
+      					<div class="panel-body" ng-chart-config chart="i">
+      					</div>
+    				</div>
+  				</div>
+			</div>
+			<!-- 生成代码控制 -->
+			<div ng-show="panels.length" class="create-panel panel">
+				<button style="width:100%" type="button" class="btn btn-primary btn-xs">生成代码</button>
+			</div>
+		</div>
+		<!-- 主画布区域 -->
+		<div class="right">
+			<!-- 主内容区 -->
+		    <div ng-style="{width: config.canvas.width}" class="main-panel panel">
+		    	<div class="gridster ready">
+		        	<ul style="position: relative;">
+		        	</ul>
+		    	</div>
+		    	<div ng-hide="panels.length" class="empty-panel well">
+		    		<h1>ChartBone</h1>
+					<p>一个富有创意的数据可视化创建工具。</p>
+					<p>使用它，不会写代码的你，也可以生成Excellent的数据可视化页面。</p>
+					<p>想象力是它唯一的束缚。</p>
+		    		<hr>
+		    		<h4>帮助</h4>
+		    		<ol>
+		    			<li>此处区域为图表生成区域，左测为控制区域配置区</li>
+		    			<li>点击导入数据按钮，首先填写或导入图表数据</li>
+		    			<li>点击添加图表，在此区域添加多种图表类型</li>
+		    			<li>对图表实例可以进行拖动与缩放</li>
+		    			<li>左边栏可以对某个图表实例进行进一步配置</li>
+		    			<li>点击生成代码，下载图表代码包</li>
+		    		</ol>
+		    	</div>
+		 	</div>
+		</div>
+	</div> 
+
+
+	<div ng-controller="dataCtrl" id="data-modal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
+		<div class="modal-dialog">
+    		<div class="modal-content">
+      			<div class="modal-header">
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        			<h4 class="modal-title">导入数据</h4>
+      			</div>
+      			<div class="modal-body import-modal-body">
+        			<div role="tabpanel">
+					    <ul class="nav nav-tabs" role="tablist">
+					    	<li role="presentation" class="active"><a href="#dataTextarea" aria-controls="dataTextarea" role="tab" data-toggle="tab">文本框</a></li>
+					    	<li role="presentation"><a href="#dataUrl" aria-controls="dataUrl" role="tab" data-toggle="tab">URL</a></li>
+					  	</ul>
+					  	<div class="tab-content">
+					    	<div role="tabpanel" class="tab-pane active" id="dataTextarea">
+					    		<p style="margin-top:10px;">请在以下文本框中，填写json格式的数据</p>
+					    		<textarea class="form-control" ng-model="data.string" cols="30" rows="10"></textarea>
+					    		<p>示例：</p>
+					    		<code>[<br/>
+					    		  &nbsp;&nbsp;&nbsp;&nbsp;['data1', 30, 200, 100, 400, 150, 250],<br/>
+	    						  &nbsp;&nbsp;&nbsp;&nbsp;['data2', 50, 20, 10, 40, 15, 25]<br/>
+								]
+								</code>
+					    	</div>
+						    <div role="tabpanel" class="tab-pane" id="dataUrl">
+								<p style="margin-top:10px;">请在以下文本框中，填写json格式数据文件的url地址</p>
+								<input type="text" class="form-control" ng-model="data.url">
+								<p>示例：</p>	
+								<code>http://s.test.com/data.json</code>
+						    </div>
+						</div>
+					</div>
+      			</div>
+		        <div class="modal-footer">
+		        	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        	<button type="button" ng-click="initData();" class="btn btn-primary">生成</button>
+		        </div>
+    		</div><!-- /.modal-content -->
+  		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal --> 
+
+	<div id="textConfigModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
+		<div class="modal-dialog">
+    		<div class="modal-content">
+      			<div class="modal-header">
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        			<h4 class="modal-title">富文本编辑</h4>
+      			</div>
+      			<div class="modal-body import-modal-body">
+			    	<div class="">
+			    		<p style="margin-top:10px;">请在以下文本框中，填写markdown格式的文本</p>
+			    		<textarea class="form-control textArea" cols="30" rows="10"></textarea>
+			    	</div>
+      			</div>
+		        <div class="modal-footer">
+		        	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        	<button type="button" class="submitText btn btn-primary">生成</button>
+		        </div>
+    		</div><!-- /.modal-content -->
+  		</div><!-- /.modal-dialog -->
+	</div>
+
+
+	<div id="picConfigModal" tabindex="-1" role="dialog" aria-hidden="true" class="modal fade">
+		<div class="modal-dialog">
+    		<div class="modal-content">
+      			<div class="modal-header">
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        			<h4 class="modal-title">绑定图片</h4>
+      			</div>
+      			<div class="modal-body import-modal-body">
+			    	<div class="">
+			    		<p style="margin-top:10px;">请输入图片URL：</p>
+			    		<input class="form-control imgurl" />
+						<br>
+						<p>例如：</p>
+			    		<code>http://image.17173.com/bbs/v1/2011/10/21/1319174585905.jpg</code>
+			    	</div>
+      			</div>
+		        <div class="modal-footer">
+		        	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        	<button type="button" class="submitText btn btn-primary">确定</button>
+		        </div>
+    		</div><!-- /.modal-content -->
+  		</div><!-- /.modal-dialog -->
+	</div>
+</div>

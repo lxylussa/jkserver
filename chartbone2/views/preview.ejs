@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chartbone 预览</title>
+    <script src="resource/jquery.min.js"></script>
+    <script src="resource/gridster.min.js"></script>
+    <script src="vendor/js/awesomeCloud.min.js"></script>
+    <script src="resource/jk.js"></script>
+    <link rel="stylesheet" href="resource/gridster.css" />
+    <link rel="stylesheet" href="resource/jk.css"/>
+
+    <link rel="stylesheet" href="chartbone/core.css"/>
+    <script src="chartbone/core.js"></script>
+</head>
+<body style="background: #ffffff">
+<h1>预览</h1>
+<hr/>
+<div id="preview_box"></div>
+<script>
+    if (window.chartbone){
+        chartbone.init({
+            id: "preview_box"
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jk animate example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="../../resource/jquery.min.js"></script>
+    <script src="../../jk.js"></script>
+    <script src="template.js"></script>
+    <script src="userpanel2.js"></script>
+    <script src="index2.js"></script>
+    <link rel="stylesheet" href="../../resource/jk.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body{
+            background: #2B353E;
+            margin: 0;
+            padding: 10px;
+        }
+        #chart {
+            position: relative;
+
+            height: 600px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.9), 0px 1px 1px 0px rgba(255, 255, 255, 0.13);
+            background-color: #10171D;
+        }
+    </style>
+</head>
+<body>
+<button type="button" class="btn upbtn">回到上层</button>
+<a href="javascript:;" class="pngbtn btn1"><img src="resource/chartlist.png" alt=""></a>
+<a href="javascript:;" class="pngbtn btn2" style="display:none"><img src="resource/chartlist.png" alt=""></a>
+<div id="slider">
+    <input class="bar" type="range" id="rangeinput" value="100" />
+    <span class="highlight"></span>
+    <output id="rangevalue"></output>
+</div>
+<div class="abpanel" id="chartpanel">
+    <div id="linechart"></div>
+</div>
+<div class="abpanel" id="eventpanel">
+    <div id="eventlist"></div>
+</div>
+<div id="chart"></div>
+
+<div class="loading">
+    <div class="loading_block">
+        <div id="block_1" class="barlittle"></div>
+        <div id="block_2" class="barlittle"></div>
+        <div id="block_3" class="barlittle"></div>
+        <div id="block_4" class="barlittle"></div>
+        <div id="block_5" class="barlittle"></div>
+    </div>
+</div>
+<div class="little_banner">
+    <div class="chart_t"></div>
+</div>
+<script type="text/art" id="eventListTpl">
+<ul class="el">
+	<%for (var i=0; i<list.length; i++) {%>
+    	<li>
+    		<div>
+    			<a target=_blank href='<%=list[i].url%>'><%=list[i].title%></a>
+    			<span class="num"><%=list[i].number%></span>
+    			<span class="pubtime"><%=list[i].pubtime%></span>
+    		</div>
+    		<div class="content"><%=list[i].content.replace(/!##!/g,' ')%></div>
+    	</li>
+    <%}%>
+</ul>
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>basic charts</title>
+	<script src="../../resource/d3.min.js"></script>
+	<script src="../../resource/jquery.min.js"></script>
+	<script src="../../resource/jk.basic.js"></script>
+	<script src="../../resource/jk.basicTree.js"></script>
+	<script src="../../resource/jk.basicTreePie.js"></script>
+	<script src="draw.js"></script>
+	<style>
+	.node text {
+  font: 10px sans-serif;
+}
+
+.join,
+.link,
+.node rect {
+  fill: none;
+  stroke: #636363;
+  stroke-width: 1.5px;
+}
+
+.right text {
+  text-anchor: end;
+}
+
+.node rect {
+  fill: white;
+}
+
+.link path,
+.node rect,
+.node text {
+  -webkit-transition: fill-opacity 500ms linear, stroke-opacity 500ms linear, stroke 500ms linear, fill 500ms linear;
+  -moz-transition: fill-opacity 500ms linear, stroke-opacity 500ms linear, stroke 500ms linear, fill 500ms linear;
+  -ms-transition: fill-opacity 500ms linear, stroke-opacity 500ms linear, stroke 500ms linear, fill 500ms linear;
+  -o-transition: fill-opacity 500ms linear, stroke-opacity 500ms linear, stroke 500ms linear, fill 500ms linear;
+  transition: fill-opacity 500ms linear, stroke-opacity 500ms linear, stroke 500ms linear, fill 500ms linear;
+}
+
+.node .array rect {
+  stroke: #636363;
+}
+
+.node .element rect {
+  fill: #bdbdbd;
+  stroke: none;
+}
+
+.node .null rect {
+  fill: none;
+  stroke: none;
+}
+
+.node .null text {
+  fill: #636363;
+}
+
+.node .function rect {
+  stroke: #3182bd;
+}
+
+.node .selection rect {
+  stroke: #e6550d;
+}
+
+.node .data rect {
+  fill: #d9d9d9;
+  stroke: none;
+}
+
+.node .code text {
+  font-family: monospace;
+}
+
+.node .key rect {
+  fill: #a1d99b;
+  stroke: none;
+}
+
+.leftbox {
+	float: left;
+	width: 50%;
+	height: 500px;
+}
+
+.rightbox {
+	float: right;
+	width: 50%;
+	height: 500px;
+}
+
+</style>
+
+
+</head>
+<body style="background-color: white;">
+	<button style='position:absolute; left:10px; top:10px;' id="data">moredata</button>
+	<div class="leftbox"></div>
+	<div class="rightbox"></div>
+</body>
+</html>

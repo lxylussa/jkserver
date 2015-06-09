@@ -1,0 +1,150 @@
+.gridster * {
+  margin:0;
+  padding:0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+
+/*/
+/* demo
+/*/
+
+
+body {
+    font-size: 16px;
+    font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;
+    color: #444;
+    margin: 30px 40px;
+}
+
+.controls {
+    margin-bottom: 20px;
+}
+
+/*/
+/* gridster
+/*/
+
+.gridster > ul {
+    background-color: #EFEFEF;
+}
+
+.gridster li {
+    line-height: 100%;
+    overflow: hidden;
+}
+
+.gridster li p{
+    margin-bottom: 5px;
+    font-size: 16px;
+    line-height: 20px;
+}
+
+
+.gridster {
+    margin: 0 auto;
+
+    opacity: .8;
+
+    -webkit-transition: opacity .6s;
+    -moz-transition: opacity .6s;
+    -o-transition: opacity .6s;
+    -ms-transition: opacity .6s;
+    transition: opacity .6s;
+}
+
+.gridster .gs-w {
+    background: #DDD;
+    cursor: pointer;
+    /*padding: 5px;*/
+}
+
+.gridster .player {
+    background: #BBB;
+}
+
+
+.gridster .preview-holder {
+    border: none!important;
+    background: red!important;
+}
+
+.main {
+    width: 1100px;
+}
+
+.left{
+    width: 200px;
+    margin-right: 20px;
+    float: left;
+    max-height: 800px;
+    overflow-y: scroll;
+}
+
+.right {
+    min-width: 300px;
+    float: left;
+    max-height: 800px;
+    overflow-y: scroll;
+}
+
+input.cs_panel{
+    width: 45px;
+    display: inline;
+}
+
+.panel {
+    border: 1px solid #eee;
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 5px
+}
+
+.controller-panel .btn-xs{
+    margin-bottom: 5px;
+}
+
+.config-panel .panel-title{
+    font-size: 12px;
+}
+
+.config-panel .panel-title .btn-danger{
+    line-height: 1;
+    padding: 2px 5px;
+}
+
+.chart-config{
+    font-size: 12px;
+}
+
+.chart-config p{
+    margin-bottom: 5px;
+}
+
+.chart-config hr{
+    margin: 0 0 5px;
+}
+
+.color-box {
+    display: inline-block;
+    width: 20px;
+    height: 10px;
+    cursor: pointer;
+}
+
+.chart-config .config-i{
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.import-modal-body{
+    font-size: 12px;
+}
+
+.panel-div {
+    position: relative;
+}

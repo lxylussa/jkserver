@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)http://bl.ocks.org/kerryrodden/477c1bfb081b783f80ad -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<title>Zoomable sunburst with updating data</title>
+<link rel="icon" href="http://bl.ocks.org/favicon.png">
+<style>
+
+@import url("/style.css?20120730");
+
+header,
+footer {
+  color: #555;
+}
+
+a.gist {
+  color: #000;
+}
+
+</style>
+
+</head><body><header>
+  <a href="http://bl.ocks.org/kerryrodden">kerryrodden</a>’s block
+  <a class="gist" title="View gist #477c1bfb081b783f80ad on GitHub" href="https://gist.github.com/kerryrodden/477c1bfb081b783f80ad">#477c1bfb081b783f80ad</a>
+  <span class="date">July 15, 2014</span>
+</header>
+
+<h1>Zoomable sunburst with updating data</h1>
+
+
+<iframe src="./Zoomable sunburst with updating data_files/saved_resource.html" marginwidth="0" marginheight="0" scrolling="no" style="height: 700px;"></iframe>
+<p></p><aside><a style="position:relative;top:6px;" href="http://bl.ocks.org/kerryrodden/raw/477c1bfb081b783f80ad/" target="_blank">Open in a new window.</a></aside>
+
+
+<div class="gist-readme"><p>I combined Mike Bostock's <a href="http://bl.ocks.org/mbostock/4348373">Zoomable Sunburst</a> and <a href="http://bl.ocks.org/mbostock/4063423">Sunburst Partition</a> examples, so that I could have both zooming and updating the underlying data (between count and size, in this case). A simple combination of the examples does not work; you have to edit the arcTween function used for updating the data, so that when it redraws the partition layout, it takes account of the current zoom level by adjusting the domain of the x scale.</p>
+
+<p>Click on any arc to zoom in, and click on the center circle to zoom out. Use the Size/Count radio buttons to update the data.</p></div>
+
+<div class="gist-sources"><div class="gist-source"><h2>index.html<a name="index.html" href="http://bl.ocks.org/kerryrodden/477c1bfb081b783f80ad#index.html">#</a></h2><pre><code class="html xml"><span class="doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"utf-8"</span>&gt;</span>
+<span class="tag">&lt;<span class="title">style</span>&gt;</span><span class="css">
+
+<span class="tag">body</span> <span class="rules">{
+  <span class="rule"><span class="attribute">font-family</span>:<span class="value"> <span class="string">"Helvetica Neue"</span>, Helvetica, Arial, sans-serif</span>;</span>
+  <span class="rule"><span class="attribute">margin</span>:<span class="value"> auto</span>;</span>
+  <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span>;</span>
+  <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">960</span>px</span>;</span>
+<span class="rule">}</span></span>
+
+<span class="tag">form</span> <span class="rules">{
+  <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span>;</span>
+  <span class="rule"><span class="attribute">right</span>:<span class="value"> <span class="number">10</span>px</span>;</span>
+  <span class="rule"><span class="attribute">top</span>:<span class="value"> <span class="number">10</span>px</span>;</span>
+<span class="rule">}</span></span>
+
+<span class="tag">path</span> <span class="rules">{
+  <span class="rule"><span class="attribute">stroke</span>:<span class="value"> <span class="hexcolor">#fff</span></span>;</span>
+  <span class="rule"><span class="attribute">fill-rule</span>:<span class="value"> evenodd</span>;</span>
+<span class="rule">}</span></span>
+
+</span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
+<span class="tag">&lt;<span class="title">body</span>&gt;</span>
+<span class="tag">&lt;<span class="title">form</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">label</span>&gt;</span><span class="tag">&lt;<span class="title">input</span> <span class="attribute">type</span>=<span class="value">"radio"</span> <span class="attribute">name</span>=<span class="value">"mode"</span> <span class="attribute">value</span>=<span class="value">"size"</span>&gt;</span> Size<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">label</span>&gt;</span><span class="tag">&lt;<span class="title">input</span> <span class="attribute">type</span>=<span class="value">"radio"</span> <span class="attribute">name</span>=<span class="value">"mode"</span> <span class="attribute">value</span>=<span class="value">"count"</span> <span class="attribute">checked</span>&gt;</span> Count<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">form</span>&gt;</span>
+<span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"http://d3js.org/d3.v3.min.js"</span>&gt;</span><span class="javascript"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span>
+<span class="tag">&lt;<span class="title">script</span>&gt;</span><span class="javascript">
+
+<span class="keyword">var</span> width = <span class="number">960</span>,
+    height = <span class="number">700</span>,
+    radius = Math.min(width, height) / <span class="number">2</span>;
+
+<span class="keyword">var</span> x = d3.scale.linear()
+    .range([<span class="number">0</span>, <span class="number">2</span> * Math.PI]);
+
+<span class="keyword">var</span> y = d3.scale.sqrt()
+    .range([<span class="number">0</span>, radius]);
+
+<span class="keyword">var</span> color = d3.scale.category20c();
+
+<span class="keyword">var</span> svg = d3.select(<span class="string">"body"</span>).append(<span class="string">"svg"</span>)
+    .attr(<span class="string">"width"</span>, width)
+    .attr(<span class="string">"height"</span>, height)
+  .append(<span class="string">"g"</span>)
+    .attr(<span class="string">"transform"</span>, <span class="string">"translate("</span> + width / <span class="number">2</span> + <span class="string">","</span> + (height / <span class="number">2</span> + <span class="number">10</span>) + <span class="string">")"</span>);
+
+<span class="keyword">var</span> partition = d3.layout.partition()
+    .sort(<span class="literal">null</span>)
+    .value(<span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> <span class="number">1</span>; });
+
+<span class="keyword">var</span> arc = d3.svg.arc()
+    .startAngle(<span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> Math.max(<span class="number">0</span>, Math.min(<span class="number">2</span> * Math.PI, x(d.x))); })
+    .endAngle(<span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> Math.max(<span class="number">0</span>, Math.min(<span class="number">2</span> * Math.PI, x(d.x + d.dx))); })
+    .innerRadius(<span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> Math.max(<span class="number">0</span>, y(d.y)); })
+    .outerRadius(<span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> Math.max(<span class="number">0</span>, y(d.y + d.dy)); });
+
+<span class="comment">// Keep track of the node that is currently being displayed as the root.</span>
+<span class="keyword">var</span> node;
+
+d3.json(<span class="string">"/d/4063550/flare.json"</span>, <span class="function"><span class="keyword">function</span><span class="params">(error, root)</span> {</span>
+  node = root;
+  <span class="keyword">var</span> path = svg.datum(root).selectAll(<span class="string">"path"</span>)
+      .data(partition.nodes)
+    .enter().append(<span class="string">"path"</span>)
+      .attr(<span class="string">"d"</span>, arc)
+      .style(<span class="string">"fill"</span>, <span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> color((d.children ? d : d.parent).name); })
+      .on(<span class="string">"click"</span>, click)
+      .each(stash);
+
+  d3.selectAll(<span class="string">"input"</span>).on(<span class="string">"change"</span>, <span class="function"><span class="keyword">function</span> <span class="title">change</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> value = <span class="keyword">this</span>.value === <span class="string">"count"</span>
+        ? <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span> <span class="keyword">return</span> <span class="number">1</span>; }
+        : <span class="function"><span class="keyword">function</span><span class="params">(d)</span> {</span> <span class="keyword">return</span> d.size; };
+
+    path
+        .data(partition.value(value).nodes)
+      .transition()
+        .duration(<span class="number">1000</span>)
+        .attrTween(<span class="string">"d"</span>, arcTweenData);
+  });
+
+  <span class="function"><span class="keyword">function</span> <span class="title">click</span><span class="params">(d)</span> {</span>
+    node = d;
+    path.transition()
+      .duration(<span class="number">1000</span>)
+      .attrTween(<span class="string">"d"</span>, arcTweenZoom(d));
+  }
+});
+
+d3.select(self.frameElement).style(<span class="string">"height"</span>, height + <span class="string">"px"</span>);
+
+<span class="comment">// Setup for switching data: stash the old values for transition.</span>
+<span class="function"><span class="keyword">function</span> <span class="title">stash</span><span class="params">(d)</span> {</span>
+  d.x0 = d.x;
+  d.dx0 = d.dx;
+}
+
+<span class="comment">// When switching data: interpolate the arcs in data space.</span>
+<span class="function"><span class="keyword">function</span> <span class="title">arcTweenData</span><span class="params">(a, i)</span> {</span>
+  <span class="keyword">var</span> oi = d3.interpolate({x: a.x0, dx: a.dx0}, a);
+  <span class="function"><span class="keyword">function</span> <span class="title">tween</span><span class="params">(t)</span> {</span>
+    <span class="keyword">var</span> b = oi(t);
+    a.x0 = b.x;
+    a.dx0 = b.dx;
+    <span class="keyword">return</span> arc(b);
+  }
+  <span class="keyword">if</span> (i == <span class="number">0</span>) {
+   <span class="comment">// If we are on the first arc, adjust the x domain to match the root node</span>
+   <span class="comment">// at the current zoom level. (We only need to do this once.)</span>
+    <span class="keyword">var</span> xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
+    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span><span class="params">(t)</span> {</span>
+      x.domain(xd(t));
+      <span class="keyword">return</span> tween(t);
+    };
+  } <span class="keyword">else</span> {
+    <span class="keyword">return</span> tween;
+  }
+}
+
+<span class="comment">// When zooming: interpolate the scales.</span>
+<span class="function"><span class="keyword">function</span> <span class="title">arcTweenZoom</span><span class="params">(d)</span> {</span>
+  <span class="keyword">var</span> xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+      yd = d3.interpolate(y.domain(), [d.y, <span class="number">1</span>]),
+      yr = d3.interpolate(y.range(), [d.y ? <span class="number">20</span> : <span class="number">0</span>, radius]);
+  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span><span class="params">(d, i)</span> {</span>
+    <span class="keyword">return</span> i
+        ? <span class="function"><span class="keyword">function</span><span class="params">(t)</span> {</span> <span class="keyword">return</span> arc(d); }
+        : <span class="function"><span class="keyword">function</span><span class="params">(t)</span> {</span> x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); <span class="keyword">return</span> arc(d); };
+  };
+}
+
+</span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></code></pre></div></div>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="./Zoomable sunburst with updating data_files/highlight.min.js"></script>
+<script>
+
+var gist = {"history":[{"version":"60a435629343c2652a4b1543cd79f3ded81d39e9"}],"files":{"README.md":{"language":"Markdown","type":"text/plain","filename":"README.md","size":636,"sha":"aa8af5d04f8df61d67248986972906cb4832e0c7"},"index.html":{"language":"HTML","type":"text/html","filename":"index.html","size":3408,"sha":"0cb46188f13d9217a6042c9e9cb78e52d90928d9"},"thumbnail.gif":{"language":null,"type":"image/gif","filename":"thumbnail.gif","size":194722,"sha":"d4b60d945cede0ec10e9afe32a4c68758937cb79"},"thumbnail.png":{"language":null,"type":"image/png","filename":"thumbnail.png","size":28604,"sha":"3da3a39094a0680d891b7e92e4005ed28bc63b2d"}},"created_at":"2014-07-15T18:09:47.000Z","updated_at":"2014-12-06T04:26:14.000Z","description":"Zoomable sunburst with updating data","owner":{"login":"kerryrodden"},"id":"477c1bfb081b783f80ad"};
+
+var files = d3.values(gist.files)
+    .sort(function(a, b) { return (b.filename === "index.html") - (a.filename === "index.html") || a.filename.localeCompare(b.filename); });
+
+var readme = d3.selectAll(".gist-readme")
+    .data(files.filter(function(d) { return /^readme\b/i.test(d.filename) && d.language === "Markdown"; }))
+    .each(function(d) {
+      var readme = d3.select(this);
+      d3.text("/kerryrodden/raw/477c1bfb081b783f80ad/60a435629343c2652a4b1543cd79f3ded81d39e9/" + d.filename, function(error, content) {
+        readme.html(new Showdown.converter().makeHtml(content));
+        readme.selectAll("code").each(function() { hljs.highlightBlock(this); });
+      });
+    });
+
+var source = d3.select(".gist-sources").selectAll(".gist-source")
+    .data(files.filter(function(d) { return !/^readme\b/i.test(d.filename) && d.size < 50000 && text(d.type); }))
+  .enter().append("div")
+    .attr("class", "gist-source");
+
+source.append("h2")
+    .text(function(d) { return d.filename; })
+  .append("a")
+    .attr("name", function(d) { return d.filename; })
+    .attr("href", function(d) { return "#" + d.filename; })
+    .text("#");
+
+source.append("pre").append("code")
+    .attr("class", function(d) { return d.language && (d.language === "JSON" ? "javascript" : d.language.toLowerCase()); })
+    .each(function(d) {
+      var code = d3.select(this);
+      d3.text("/kerryrodden/raw/477c1bfb081b783f80ad/60a435629343c2652a4b1543cd79f3ded81d39e9/" + (d.filename === "index.html" ? "" : d.filename), function(error, content) {
+        code.text(content);
+        hljs.highlightBlock(code.node());
+      });
+    });
+
+function text(type) {
+  return /(^text\/)|(^application\/(javascript|json)$)|(^image\/svg$)|(\+xml$)/.test(type);
+}
+
+</script>
+
+<footer>
+  <a href="http://bl.ocks.org/kerryrodden">kerryrodden</a>’s block
+  <a class="gist" title="View gist #477c1bfb081b783f80ad on GitHub" href="https://gist.github.com/kerryrodden/477c1bfb081b783f80ad">#477c1bfb081b783f80ad</a>
+  <span class="date">July 15, 2014</span>
+</footer>
+
+<script>
+
+GoogleAnalyticsObject = "ga", ga = function() { ga.q.push(arguments); }, ga.q = [], ga.l = +new Date;
+ga("create", "UA-48272912-1", "ocks.org");
+ga("send", "pageview");
+
+</script>
+<script async="" src="./Zoomable sunburst with updating data_files/analytics.js"></script>
+<embed id="xunlei_com_thunder_helper_plugin_d462f475-c18e-46be-bd10-327458d045bd" type="application/thunder_download_plugin" height="0" width="0"><iframe id="rdbIndicator" width="100%" height="270" border="0" src="./Zoomable sunburst with updating data_files/indicator.html" style="display: none; border: 0; position: fixed; left: 0; top: 0; z-index: 2147483647"></iframe></body></html>

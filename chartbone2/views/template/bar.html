@@ -1,0 +1,36 @@
+<script type="text/tpl" id="barchart_config">
+	<div>
+		<div class="config-i">
+			<button class="btn btn-xs btn-primary" ng-click="importData()">检视数据</button>
+		</div>
+		<div class="config-i">
+			<p>显示图例：
+				是 <input type="radio" ng-model="chart.chart_config.legend.show" value="1"/>
+				否 <input type="radio" ng-model="chart.chart_config.legend.show" value="0"/>
+			</p>
+		</div>
+		<div class="config-i">
+			<p>颜色：</p>
+			<hr>
+			<div>
+				<p ng-repeat="(k,v) in chart.chart_config.data.colors">
+					{{k}} <span ng-color-pick color="chart.chart_config.data.colors[k]" class="color-box" style="background-color: {{v}}"></span>
+				</p>
+			</div>
+		</div>
+		<div class="config-i">
+			<p>X轴标识：</p>
+			<hr>
+			<div class="form-group-sm">
+				<input placeholder="请输入X轴标识" ng-model="chart.chart_config.axis.x.label.text" class="form-control" />
+			</div>
+		</div>
+		<div class="config-i">
+			<p>Y轴标识：</p>
+			<hr>
+			<div class="form-group-sm">
+				<input placeholder="请输入Y轴标识" ng-model="chart.chart_config.axis.y.label.text" class="form-control" />
+			</div>
+		</div>
+	</div>
+</script>
