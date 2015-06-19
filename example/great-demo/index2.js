@@ -171,7 +171,7 @@ $(function(){
         //});
 
         $.ajax({
-            url:'http://localhost:8080/demojson/2014-12.json',
+            url:'http://222.29.197.235/example/great-demo/demojson/2014-12.json',
             dataType:"json",
             jsonp:"callback",
             success:function(data){
